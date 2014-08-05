@@ -3,16 +3,16 @@ using System.Collections;
 
 public class TestCube : MonoBehaviour {
    	public string myName;
-	public Rigidbody rigidBody;
+	// public Rigidbody rigidBody;
 	public Vector3 speed;
 
 	public void Start() {
-		rigidBody = gameObject.AddComponent<Rigidbody>();
-		rigidBody.isKinematic = true;
+		// rigidBody = gameObject.AddComponent<Rigidbody>();
+		// rigidBody.isKinematic = true;
 
-		Debug.Log("Rigidbody found.");
-		if (rigidBody == null)
-			Debug.Log("Rigidbody found is empty");
+		// Debug.Log("Rigidbody found.");
+		// if (rigidBody == null)
+		//	Debug.Log("Rigidbody found is empty");
 
 		speed = new Vector3(2, 0, 0);
 		sayMyName();
@@ -39,18 +39,22 @@ public class TestCube : MonoBehaviour {
 
 		if (Input.GetKeyDown(KeyCode.DownArrow)) {
 			gameObject.renderer.material.color = Color.gray;
+			myName = "GRAY";
+			sayMyName();
 		}
 
 		if (Input.GetKeyDown(KeyCode.A)) {
-			rigidBody.MovePosition(rigidBody.position + speed);
+			transform.Translate(speed);
 			Debug.Log("TOP");
-			// rigidBody.MovePosition(rigidBody.position);
 		}
 
 		if (Input.GetKeyDown(KeyCode.Q)) {
-			rigidBody.MovePosition(rigidBody.position - speed); // *Time.deltaTime);
+			// rigidBody.MovePosition(rigidBody.position - speed);
+			// *Time.deltaTime);
+			// transform.position -= speed;
+
+			transform.Translate(-speed);
 			Debug.Log("BOT");
-			// rigidBody.MovePosition(rigidBody.position);
 		}
     }
 
