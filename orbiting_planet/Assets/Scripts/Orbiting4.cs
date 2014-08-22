@@ -25,18 +25,19 @@ using System;
 
 public class Orbiting4 : MonoBehaviour {
 
-	public float speed = 10f;
+	public float speed = 0.000002f;
 	public int precision = 5; // n+1 number of points
 
 	private float r, r2; // radius and radius square
 	private int iter = 0;
 	private float[] zPoints, yPoints;
+	private float deltaTime = 0f;
 
 	public void Start() {
 		r = Math.Abs(transform.position.z);
 		r2 = r*r;
 
-		precision = Math.Min(precision, 5);
+		precision = Math.Max(precision, 5);
 		zPoints = new float[precision];
 		yPoints = new float[precision];
 
@@ -53,19 +54,24 @@ public class Orbiting4 : MonoBehaviour {
 	 * Hence, we keep going on the first quarter for now on.
 	 ***/
 	public void Update() {
-		if (iter == precision) {
-			iter = 0;
+		if (deltaTime > 0) {
+			deltaTime = 0;
+
+			if (iter == precision) {
+				iter = 0;
+			}
+
+			// Updating the position of the sphere to the next
+			// position.
+			Vector3 newPosition = new Vector3
+				(transform.position.x, zPoints[iter], yPoints[iter]);
+			transform.position = newPosition;
+
+			// Updating the count of the current iteration.
+			++iter;
+		} else {
+			deltaTime += Time.deltaTime;
 		}
-
-		// Updating the position of the sphere to the next
-		// position.
-		Vector3 new_position = new Vector3
-			(transform.position.x, zPoints[iter], yPoints[iter]);
-		// transform.position.z = zPoints[iter];
-		// transform.position.y = yPoints[iter];
-
-		// Updating the count of the current iteration.
-		++iter;
 	}
 
 	// xk = cos(2k+1/2(n+1) * PI) for k in 0..n
@@ -73,7 +79,7 @@ public class Orbiting4 : MonoBehaviour {
 	private void computeTchebychevRoots() {
 		for (int i = 0; i < precision; ++i) {
 			zPoints[i] = (float)
-				Math.Cos(2*((i+0.5)/(precision+1)) * Math.PI);
+				Math.Cos(2*((i+0.5)/(precision+1)) * Math.PI) * r;
 			Debug.Log("zPoints[" + i + "]: " + zPoints[i]);
 		}
 	}
