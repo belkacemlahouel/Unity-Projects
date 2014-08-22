@@ -25,13 +25,14 @@ using System;
 
 public class Orbiting4 : MonoBehaviour {
 
-	public float speed = 0.000002f;
+	public float speed = 0.000002f; // not used for now
 	public int precision = 5; // n+1 number of points
 
 	private float r, r2; // radius and radius square
 	private int iter = 0;
 	private float[] zPoints, yPoints;
 	private float deltaTime = 0f;
+	private bool TOP = true;
 
 	public void Start() {
 		r = Math.Abs(transform.position.z);
@@ -54,18 +55,31 @@ public class Orbiting4 : MonoBehaviour {
 	 * Hence, we keep going on the first quarter for now on.
 	 ***/
 	public void Update() {
-		if (deltaTime > 0) {
+		if (deltaTime > 0) { // smoother image
 			deltaTime = 0;
 
-			if (iter == precision) {
+			if (iter <= 0) {
 				iter = 0;
+				TOP = true;
+			}
+
+			if (iter >= precision/2) {
+				TOP = false;
 			}
 
 			// Updating the position of the sphere to the next
 			// position.
-			Vector3 newPosition = new Vector3
-				(transform.position.x, zPoints[iter], yPoints[iter]);
-			transform.position = newPosition;
+			if (TOP) {
+				Vector3 newPosition = new Vector3
+					(transform.position.x, yPoints[iter], zPoints[iter]);
+				transform.position = newPosition;
+			} else {
+				Vector3 newPosition = new Vector3
+					(transform.position.x, yPoints[iter], -zPoints[iter]);
+				transform.position = newPosition;
+			}
+
+			Debug.Log("ITER: " + iter);
 
 			// Updating the count of the current iteration.
 			++iter;
