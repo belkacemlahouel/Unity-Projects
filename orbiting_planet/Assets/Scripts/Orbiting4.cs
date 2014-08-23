@@ -25,10 +25,11 @@ using System;
 
 public class Orbiting4 : MonoBehaviour {
 
-	public float speed = 0.000002f; // not used for now
+	public float speed = 10000f;
 	public int precision = 5; // n+1 number of points
 
-	private float r, r2; // radius and radius square
+	private float speedInv;
+	private double r, r2; // radius and radius square
 	private int iter = 0;
 	private float[] zPoints, yPoints;
 	private float deltaTime = 0f;
@@ -42,23 +43,27 @@ public class Orbiting4 : MonoBehaviour {
 		zPoints = new float[precision];
 		yPoints = new float[precision];
 
-		Debug.Log("Bonjour");
-
 		computeTchebychevRoots();
 		computeImages();
 	}
 
 	/***
-	 * @todo
-	 * For the moment, this only interpolates
-	 * on the first quarter of the circle.
-	 * Hence, we keep going on the first quarter for now on.
+	 * We describe a whole circular trajectory.
+	 * But, we only use half of the array containing
+	 * Tchebychev roots.
+	 *
+	 * @bug
+	 * We may have one/two NaN while computing
+	 * Techbychev roots. The mistake appears only
+	 * later, when we make the planet move.
 	 ***/
 	public void Update() {
-		if (deltaTime > 0) { // smoother image
+		speedInv = (float) (1/speed);
+
+		if (deltaTime > speedInv) { // smoother image
 			deltaTime = 0;
 
-			if (iter <= 0) {
+			if (iter <= 0 || iter >= precision) {
 				iter = 0;
 				TOP = true;
 			}
@@ -71,18 +76,17 @@ public class Orbiting4 : MonoBehaviour {
 			// position.
 			if (TOP) {
 				Vector3 newPosition = new Vector3
-					(transform.position.x, yPoints[iter], zPoints[iter]);
+					(transform.position.x, yPoints[++iter], zPoints[iter]);
 				transform.position = newPosition;
 			} else {
 				Vector3 newPosition = new Vector3
-					(transform.position.x, yPoints[iter], -zPoints[iter]);
+					(transform.position.x, -yPoints[--iter], zPoints[iter]);
 				transform.position = newPosition;
 			}
 
-			Debug.Log("ITER: " + iter);
-
-			// Updating the count of the current iteration.
-			++iter;
+			// Updating the count of the current iteration:
+			// is now inside previous condition using
+			// pre-incrementation operator properties.
 		} else {
 			deltaTime += Time.deltaTime;
 		}
@@ -93,8 +97,7 @@ public class Orbiting4 : MonoBehaviour {
 	private void computeTchebychevRoots() {
 		for (int i = 0; i < precision; ++i) {
 			zPoints[i] = (float)
-				Math.Cos(2*((i+0.5)/(precision+1)) * Math.PI) * r;
-			Debug.Log("zPoints[" + i + "]: " + zPoints[i]);
+				(Math.Cos(2*((i+0.5)/(precision+1)) * Math.PI) * r);
 		}
 	}
 
@@ -102,8 +105,22 @@ public class Orbiting4 : MonoBehaviour {
 	private void computeImages() {
 		for (int i = 0; i < precision; ++i) {
 			yPoints[i] = (float)
-				Math.Sqrt(r*r - zPoints[i]*zPoints[i]);
-			Debug.Log("yPoints[" + i + "]: " + yPoints[i]);
+				Math.Sqrt(r2 - zPoints[i]*zPoints[i]);
+
+			/***
+			 * Only because when this condition is verified,
+			 * we have r2 - zPoints[i]*zPoints[i] < 0
+			 * and we suppose this comes from a lack of precision
+			 * that's why we decided to affect r to yPoints[i].
+			 *
+			 * EDIT
+			 * Using double (instead of float) type for "r" makes
+			 * this error disappear.
+			 * If you encounter this error again, you may disable
+			 * for the following lines.
+			 ***/
+			// if (Double.IsNaN(yPoints[i]))
+			// 	yPoints[i] = (float) r;
 		}
 	}
 }
