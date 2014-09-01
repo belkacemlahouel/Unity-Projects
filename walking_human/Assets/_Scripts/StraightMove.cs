@@ -18,7 +18,7 @@ public class StraightMove : MonoBehaviour {
 	 * *** @todo ***
 	 * 
 	 * First amelioration: using an human instead of a sphere/cube
-	 * The human moves in the same direction, at the same speed.
+	 * The human always moves in the same direction, at the same speed.
 	 *
 	 * Second kind of ameliorations to do:
 	 *  - changing the speed using two keys (in/de-creasing)
