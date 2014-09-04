@@ -8,6 +8,7 @@ public class RandomPath : MonoBehaviour {
 	// A key to press in order to start the animation
 	// Set the timer to not change that much directions...
 	// More randomness when setting directions/speeds ?
+	// Everybody needs to keep walking forward for the moment...
 	// ********************************
 
 	// ******* how does it work *******
@@ -19,23 +20,25 @@ public class RandomPath : MonoBehaviour {
 	// Finally, another target point is chosen
 	// ********************************
 
-	private readonly float EPSILON = 0.01f;
+	private readonly float EPSILON = 0.5f;
 	private readonly float LIMIT = 5f;
-	private readonly float TIMER = 1f;
+	private readonly float TIMER = 5f;
 	private float limit;
 	private float x, z;
 	private float direction, speed;
 	private Animator animator;
-	private float timerDirection = 0, timerSpeed = 0;
+	private float timerDirection, timerSpeed;
 
 	public void Start() {
 		limit = LIMIT-EPSILON;
+		timerDirection = TIMER+1f;
+		timerSpeed = TIMER+1f;
 		animator = GetComponent<Animator>();
 		newTarget();
 	}
 	
 	public void Update() {
-		if (areWeThere()) {
+		if (areWeAlmostThere()) {
 			newTarget();
 		} else {
 			goThere();
@@ -47,9 +50,9 @@ public class RandomPath : MonoBehaviour {
 		z = Random.Range(-limit, limit);
 	}
 
-	private bool areWeThere() {
-		return 	x == transform.position.x &&
-				z == transform.position.z;
+	private bool areWeAlmostThere() {
+		return 	(x > transform.position.x+EPSILON || x < transform.position.x-EPSILON) &&
+				(z > transform.position.z+EPSILON || z < transform.position.z-EPSILON);
 	}
 
 	private void goThere() {
