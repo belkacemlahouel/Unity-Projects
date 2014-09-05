@@ -10,7 +10,7 @@ Platform assembly: C:\Users\blahouel\Documents\Unity\crowd\Application\crowd_Dat
 Loading C:\Users\blahouel\Documents\Unity\crowd\Application\crowd_Data\Managed\UnityEngine.dll into Unity Child Domain
 Platform assembly: C:\Users\blahouel\Documents\Unity\crowd\Application\crowd_Data\Managed\Assembly-CSharp.dll (this message is harmless)
 Loading C:\Users\blahouel\Documents\Unity\crowd\Application\crowd_Data\Managed\Assembly-CSharp.dll into Unity Child Domain
-- Completed reload, in  0.201 seconds
-desktop: 1600x1200 60Hz; virtual: 3200x1376 at -1600,-176
+- Completed reload, in  0.113 seconds
+desktop: 1600x1200 60Hz; virtual: 2800x1600 at -1200,-270
 <RI> Initializing input.
 <RI> Input initialized.
