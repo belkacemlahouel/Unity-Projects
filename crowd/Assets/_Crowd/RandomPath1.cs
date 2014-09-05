@@ -17,10 +17,12 @@ public class RandomPath1 : MonoBehaviour {
 	public float TIMER;
 
 	public Vector3 target;
+	public Vector3 previous;			// previous position
+	public Vector3 vector;				// current 3-axis direction
 	private float limit;
-	public float timer;							// can't reach the target
-	private float waiting;						// waiting after arrival
-	private float distance;
+	public float timer;					// can't reach the target
+	private float waiting;				// waiting after arrival
+	private float distance;				// distance to target, when new target
 	public float speed;
 	public float direction;
 	private Animator animator;
@@ -34,13 +36,15 @@ public class RandomPath1 : MonoBehaviour {
 		waiting = 0f;
 		speed = 0f;
 		direction = 0f;
+		previous = transform.position;
+		vector = Vector3.zero;
 
 		newTarget();
 	}
 
 	public void Update() {
-		// Improvement: boolean variable to keep this evaluation
-		// then, we just have to test the variable if true.
+		vector = transform.position-previous;
+		previous = transform.position;
 
 		if (timer > TIMER) {
 			timer = 0f;
@@ -49,6 +53,9 @@ public class RandomPath1 : MonoBehaviour {
 			setAnimatorSpeed();
 			newTarget();
 		} else if (weArrived()) {
+			// Improvement: boolean variable to keep this evaluation
+			// then, we just have to test the variable if true.
+
 			// Small transition to Idle state and wait a small time frame
 			// Then search one new target position to go to
 
@@ -81,19 +88,33 @@ public class RandomPath1 : MonoBehaviour {
 			}
 			setAnimatorSpeed();
 
+			// ****************************************************************
+			// ****************************************************************
+			// ****************************************************************
+
+
 			// Determining the direction
 			// We always consider the case where the target is ahead
-			if (target.z < transform.position.z) {
-				if (target.x > transform.position.x ||
-					System.Math.Abs(transform.position.z) > limit ||
-					System.Math.Abs(transform.position.x) > limit) {
+			if (isBehind()) {
+				/*if (target.x > transform.position.x) {
+					// || System.Math.Abs(transform.position.z) > limit ||
+					// System.Math.Abs(transform.position.x) > limit) {
 					// The target is behind and on the right.
 					// Or we reached one wall
 					direction = 1f;
 				} else {
 					// The target is behind and on the left.
 					direction = -1f;
+				}*/
+
+				direction = (float) (Vector3.Angle(target, vector)/180f);
+				if (target.x > transform.position.x) {
+					direction *= -1;
 				}
+
+				// if (System.Math.Abs(direction) < 0.01f) {
+				// 	Debug.Log("ANGLE " + direction);
+				// }
 
 				speed = 1;
 			} else {
@@ -103,7 +124,24 @@ public class RandomPath1 : MonoBehaviour {
 				direction = (float) System.Math.Cos(
 								(target.x - transform.position.x)
 								/ distanceToTarget());
+
+				// if (System.Math.Abs(direction) < 0.01f) {
+				// 	Debug.Log("TRIGO " + direction);
+				// }
 			}
+
+			/*direction = System.Math.Min(0.3f, (float) System.Math.Cos(
+								(target.x - transform.position.x)
+								/ distanceToTarget()));
+			direction = System.Math.Min(direction,
+								(float) (Vector3.Angle(target, vector)));*/
+
+			// ****************************************************************
+			// ****************************************************************
+			// ****************************************************************
+
+
+
 			setAnimatorDirection();
 		}
 	}
@@ -188,5 +226,19 @@ public class RandomPath1 : MonoBehaviour {
 		(position.x-transform.position.x) * (position.x-transform.position.x) +
 		(position.y-transform.position.y) * (position.y-transform.position.y) +
 		(position.z-transform.position.z) * (position.z-transform.position.z));
+	}
+
+	/***
+	 * Computes whether the target position is behind or not
+	 * The axis are character-centered
+	 ***/
+
+	private bool isBehind() {
+		if (vector != Vector3.zero) {
+			float angle = Vector3.Angle(target, vector);
+			return angle > 90f;
+		}
+
+		return false;
 	}
 }
